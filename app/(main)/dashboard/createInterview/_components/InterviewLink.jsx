@@ -9,8 +9,10 @@ function InterviewLink({ interview_id, formData }) {
     const [copied, setCopied] = useState(false);
 
     const GetInterviewLink = () => {
-        const url = `${process.env.NEXT_PUBLIC_HOST_URL}/${interview_id}`;
-        return url;
+        // Use environment variable if available, otherwise use current origin
+        const baseUrl = process.env.NEXT_PUBLIC_HOST_URL || 
+                      (typeof window !== 'undefined' ? window.location.origin : '');
+        return `${baseUrl}/${interview_id}`;
     }
 
     const handleCopy = () => {
