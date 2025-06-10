@@ -1,11 +1,8 @@
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
+import { redirect } from 'next/navigation';
 
 export default function Home() {
-  return (
-    <div>
-      hello
-      <Button>Click me</Button>
-    </div>
-  );
+  redirect('/auth');
+  
+  // This return will never be reached due to the redirect
+  return null;
 }

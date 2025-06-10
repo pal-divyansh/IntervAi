@@ -8,8 +8,11 @@ import { FcGoogle } from 'react-icons/fc';
 function Page() {
   // Handle Google sign-in
   const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`
+      }
     });
     
     if (error) {
