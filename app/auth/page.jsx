@@ -74,7 +74,7 @@ function Page() {
 
             <div className="text-center space-y-2">
               <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-100">
-                Welcome to AiCruiter
+                Welcome to IntervAI
               </h2>
               <p className="text-blue-100/80">
                 Sign in to access your AI-powered interview platform
