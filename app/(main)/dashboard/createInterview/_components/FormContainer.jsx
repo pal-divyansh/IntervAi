@@ -36,7 +36,7 @@ function FormContainer({ formData, onHandleInputChange, handleNextStep, isFormVa
             {/* Decorative elements */}
             <div className='absolute -inset-0.5 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-2xl blur opacity-30'></div>
             
-            <div className='relative bg-gradient-to-br from-white/5 to-white/3 backdrop-blur-sm p-8 rounded-2xl border border-white/10 shadow-2xl'>
+            <div className='relative bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-sm p-8 rounded-2xl border border-white/5 shadow-2xl'>
                 <div className='space-y-8'>
                     {/* Header */}
                     <div className='space-y-1'>

@@ -15,7 +15,9 @@ const InterviewPage = () => {
     const {interview_id} = useParams();
     console.log(interview_id);
     const [loading, setLoading] = useState(false);
-
+    const [email, setEmail] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    
     const GetInterviewDetails = async () => {
         try {
             setLoading(true);
@@ -55,41 +57,50 @@ const InterviewPage = () => {
         e.preventDefault();
         
         if (!name.trim()) {
-            console.log('Please enter your name');
+            console.error('Please enter your name');
             return;
         }
         
         try {
-            setLoading(true);
+            setIsSubmitting(true);
             
-            // Fetch interview details
-            const { data: interview, error: interviewError } = await supabase
+            // Get the latest interview data
+            const { data: interview, error } = await supabase
                 .from('Interviews')
                 .select('*')
                 .eq('interview_id', interview_id)
                 .single();
 
-            if (interviewError) throw interviewError;
+            if (error) throw error;
 
-            // Get questions from the questionList column
-            const questions = interview.questionList || [];
-            console.log('Questions from questionList:', questions);
-
-            // Log all the details
-            console.log('Interview Details:', {
+            // Update interview data with user's info and questions
+            const updatedData = {
                 ...interview,
-                candidateName: name.trim()
-            });
-
-            // Store in context
-            setInterviewData({ ...interview, questions });
+                interview_id,
+                candidateName: name.trim(),
+                candidateEmail: email.trim() || 'no-email@example.com',
+                questions: interview.questionList || []
+            };
             
-            // Navigate to the start page
+            // Save to context
+            setInterviewData(updatedData);
+            
+            console.log('Starting interview with data:', {
+                interview_id,
+                candidateName: name.trim(),
+                candidateEmail: email.trim() || 'no-email@example.com',
+                questionCount: (interview.questionList || []).length
+            });
+            
+            // Navigate to the interview start page
             router.push(`/interview/${interview_id}/start`);
+            
         } catch (error) {
-            console.error('Error fetching interview details:', error);
+            console.error('Error starting interview:', error);
+            // Show error to user (you might want to implement a toast or alert)
+            alert('Failed to start interview. Please try again.');
         } finally {
-            setLoading(false);
+            setIsSubmitting(false);
         }
     };
 
@@ -163,6 +174,17 @@ const InterviewPage = () => {
                                     placeholder="John Doe"
                                     className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
                                 />
+                                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                                    Email
+                                </label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="john.doe@example.com"
+                                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400"
+                                />
                             </div>
                         </div>
                     </div>
@@ -188,16 +210,21 @@ const InterviewPage = () => {
 
                     {/* Action Button */}
                     <div className="text-center">
-                        <Button 
-                            size="lg" 
-                            className="w-full max-w-xs bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-lg py-6 rounded-xl shadow-lg hover:shadow-blue-500/20 transition-all duration-300"
-                            onClick={handleJoinInterview}
-                            disabled={!name.trim()}
-                        >
-                            <Video className="mr-2 h-5 w-5" />
-                            {loading && <Loader2Icon className="mr-2 h-5 w-5 animate-spin" />}
-                            Start Interview
-                        </Button>
+                            <Button 
+                                type="button" 
+                                onClick={handleJoinInterview}
+                                className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 disabled:opacity-70 disabled:cursor-not-allowed"
+                                disabled={isLoading || isSubmitting || !name.trim()}
+                            >
+                                {isLoading || isSubmitting ? (
+                                    <>
+                                        <Loader2Icon className="animate-spin -ml-1 mr-2 h-4 w-4" />
+                                        {isSubmitting ? 'Starting...' : 'Loading...'}
+                                    </>
+                                ) : (
+                                    'Start Interview'
+                                )}
+                            </Button>
                     </div>
                     </div>
                 </div>

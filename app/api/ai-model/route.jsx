@@ -1,8 +1,29 @@
 import OpenAI from "openai";
-import QUESTIONS_PROMPT from "../../services/Constants";
+import { QUESTIONS_PROMPT } from "@/app/services/Constants";
+
+console.log('API Key:', process.env.OPENROUTER_API_KEY ? 'Key exists' : 'Missing API Key');
 export async function POST(req) {
-    const {jobPosition, jobDescription, duration, interviewType} = await req.json();
-    try{
+    try {
+        const body = await req.json();
+        console.log('Request body:', JSON.stringify(body, null, 2));
+        
+        const { jobPosition, jobDescription, duration, interviewType } = body;
+        
+        if (!jobPosition || !jobDescription || !duration || !interviewType) {
+            console.error('Missing required fields:', { jobPosition, jobDescription, duration, interviewType });
+            return new Response(JSON.stringify({ 
+                error: 'Missing required fields',
+                required: ['jobPosition', 'jobDescription', 'duration', 'interviewType']
+            }), { status: 400 });
+        }
+        
+        if (!process.env.OPENROUTER_API_KEY) {
+            console.error('Missing OPENROUTER_API_KEY environment variable');
+            return new Response(JSON.stringify({ 
+                error: 'Server configuration error',
+                details: 'API key not configured'
+            }), { status: 500 });
+        }
     const openai = new OpenAI({
         baseURL: "https://openrouter.ai/api/v1",
         apiKey: process.env.OPENROUTER_API_KEY,
@@ -44,11 +65,18 @@ export async function POST(req) {
               headers: { 'Content-Type': 'application/json' },
           });
       }
-    } catch(error) {
-        console.error('API Error:', error);
+    } catch (error) {
+        console.error('API Error:', {
+            message: error.message,
+            stack: error.stack,
+            name: error.name,
+            code: error.code
+        });
+        
         return new Response(JSON.stringify({ 
             error: 'Failed to generate questions',
-            details: error.message 
+            details: error.message,
+            ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
         }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' },

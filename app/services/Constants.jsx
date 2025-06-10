@@ -48,4 +48,23 @@ format: interviewQuestions=[
 }]
 🎯 The goal is to create a structured, relevant, and time-optimized interview plan for a {{jobTitle}} role.`
 
-export default QUESTIONS_PROMPT;
+const FEEDBACK_PROMPT = `You are an AI assistant providing interview feedback. Respond in English only.
+
+Interview Conversation:
+{{conversation}}
+
+Please provide detailed feedback on the candidate's performance in the following JSON format. Rate each category from 1-10 and provide constructive feedback in English:
+
+1. Technical Skills (1-10)
+2. Communication (1-10)
+3. Problem Solving (1-10)
+4. Experience (1-10)
+
+Also include a 3-line summary and a clear hiring recommendation.
+
+Respond ONLY with valid JSON in this exact format:
+
+{\n  \"feedback\": {\n    \"rating\": {\n      \"technicalSkills\": 8,\n      \"communication\": 7,\n      \"problemSolving\": 8,\n      \"experience\": 7\n    },\n    \"summary\": \"The candidate demonstrated strong technical abilities and problem-solving skills. Communication was clear and effective. They showed relevant experience for the role.\",\n    \"recommendation\": \"Yes\",\n    \"recommendationMsg\": \"Strong candidate with good technical skills and communication abilities.\"\n  }\n}
+`
+
+export { QUESTIONS_PROMPT,FEEDBACK_PROMPT };

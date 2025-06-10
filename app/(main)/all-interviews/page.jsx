@@ -1,3 +1,4 @@
+
 "use client";
 import React, { useEffect, useState } from 'react';
 import { Plus, RefreshCw } from 'lucide-react';
@@ -5,9 +6,9 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/app/services/supabaseClient';
 import { useUser } from '@/app/provider';
-import InterviewCard from './InterviewCard';
+import InterviewCard from '../dashboard/_components/InterviewCard';
 
-function LatestInterviewsList() {
+export default function AllInterviews() {
     const { user } = useUser();
     const [interviews, setInterviews] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -121,23 +122,11 @@ function LatestInterviewsList() {
 
     return (
         <section className='mt-12'>
-            <div className='mb-8'>
-                <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4'>
-                    <div>
-                        <h2 className='text-2xl md:text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent'>
-                            Your Interviews
-                        </h2>
-                        <p className='text-white/60 text-sm mt-1'>Review and manage your past interview sessions</p>
-                    </div>
-                    <Link href="/schedule-interview" className='w-full sm:w-auto'>
-                        <Button 
-                            className='w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white px-6 py-2 rounded-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-95 shadow-lg shadow-blue-500/10 hover:shadow-blue-500/20'
-                        >
-                            <Plus className='h-4 w-4 mr-2' />
-                            New Interview
-                        </Button>
-                    </Link>
-                </div>
+            <div className='mb-8 text-center'>
+                <h2 className='text-2xl md:text-3xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent'>
+                    Your Interviews
+                </h2>
+                <p className='text-white/60 text-sm mt-1'>Review and manage your past interview sessions</p>
             </div>
             <div className='max-h-[calc(100vh-300px)] overflow-y-auto pr-2 custom-scrollbar'>
                 {/* Custom scrollbar styles */}
@@ -162,5 +151,3 @@ function LatestInterviewsList() {
         </section>
     );
 }
-
-export default LatestInterviewsList;

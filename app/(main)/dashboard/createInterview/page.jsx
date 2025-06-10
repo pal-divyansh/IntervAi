@@ -81,7 +81,7 @@ function CreateInterview() {
             {/* Form container */}
             <div className='relative'>
                 <div className='absolute -inset-1 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-2xl blur opacity-30'></div>
-                <div className='relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden'>
+                <div className='relative bg-gradient-to-br from-gray-900/80 to-gray-800/80 backdrop-blur-sm border border-white/5 rounded-2xl overflow-hidden'>
                     {step===1?<FormContainer formData={formData} onHandleInputChange={onHandleInputChange} handleNextStep={handleNextStep} isFormValid={isFormValid()}/>: step===2?<QuestionList formData={formData} onCreateLink={onCreateLink} onHandleInputChange={onHandleInputChange} handleNextStep={handleNextStep} handlePreviousStep={handlePreviousStep}/>:step===3?<InterviewLink interview_id={interview_id} formData={formData}/> :null }
                 </div>
             </div>

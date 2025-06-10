@@ -17,7 +17,7 @@ export default function QuestionListContainer({ questions, loading, onFinish }) 
                 ) : questions && questions.length > 0 ? (
                     <ul className="space-y-4">
                         {questions.map((item, index) => (
-                            <li key={index} className="p-4 bg-white/5 rounded-lg border border-white/10">
+                            <li key={index} className="p-4 bg-gradient-to-br from-gray-900/80 to-gray-800/80 rounded-lg border border-white/5 shadow-lg">
                                 <div className="flex items-start">
                                     <span className="w-24 flex-shrink-0 px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded-full text-center">
                                         {item.type}
