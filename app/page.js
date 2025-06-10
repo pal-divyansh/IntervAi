@@ -55,7 +55,7 @@ export default function Home() {
             <div className="relative w-48 h-16">
               <Image 
                 src={'/logo.png'} 
-                alt="AiCruiter Logo"
+                alt="IntervAI Logo"
                 fill
                 className="object-contain"
                 priority
