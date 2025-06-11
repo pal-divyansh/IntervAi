@@ -46,13 +46,13 @@ function InterviewLink({ interview_id, formData }) {
                         </div>
                         
                         <div className='flex gap-2'>
-                            <Input 
+                            {/* <Input 
                                 value={GetInterviewLink()} 
                                 readOnly 
                                 onFocus={(e) => e.target.select()}
                                 onClick={(e) => e.target.select()}
                                 className='bg-white/5 border-white/10 text-white/90 flex-1 hover:border-white/20 focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-colors duration-300 select-all cursor-default'
-                            />
+                            /> */}
                             <Button 
                                 onClick={handleCopy}
                                 className='bg-blue-600 hover:bg-blue-500 text-white transition-colors group'
