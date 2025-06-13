@@ -9,12 +9,11 @@ function InterviewLink({ interview_id, formData }) {
     const [copied, setCopied] = useState(false);
 
     const GetInterviewLink = () => {
-        // In production, use Vercel URL, otherwise use the current origin
-        const isProduction = process.env.NODE_ENV === 'production';
-        const baseUrl = isProduction 
-            ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL || process.env.VERCEL_URL || ''}`
-            : (typeof window !== 'undefined' ? window.location.origin : 'https://ai-interviewer.vercel.app');
-        // Ensure the URL has the correct path for the interview page
+        // In production, use the hardcoded Vercel URL, otherwise use the current origin
+        const baseUrl = process.env.NODE_ENV === 'production'
+            ? 'https://ai-interviewer.vercel.app'
+            : (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+        // Generate the interview URL with the correct path
         return `${baseUrl}/interview/${interview_id}`;
     }
 
