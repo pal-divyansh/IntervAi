@@ -9,16 +9,12 @@ function InterviewLink({ interview_id, formData }) {
     const [copied, setCopied] = useState(false);
 
     const GetInterviewLink = () => {
-        // Use NEXT_PUBLIC_HOST_URL if available, otherwise fall back to current origin
-        const baseUrl = process.env.NEXT_PUBLIC_HOST_URL || 
-                      (typeof window !== 'undefined' ? window.location.origin : 'https://interv-ai-dp.vercel.app');
-        // Ensure we have a valid base URL
-        if (!baseUrl) {
-            console.error('NEXT_PUBLIC_HOST_URL is not set in environment variables');
-            return '';
-        }
-        // Remove any trailing slashes and append the interview path
-        return `${baseUrl.replace(/\/+$/, '')}/interview/${interview_id}`;
+        // In production, use Vercel URL, otherwise use the current origin
+        const isProduction = process.env.NODE_ENV === 'production';
+        const baseUrl = isProduction 
+            ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL || process.env.VERCEL_URL || ''}`
+            : (typeof window !== 'undefined' ? window.location.origin : '');
+        return `${baseUrl}/interview/${interview_id}`;
     }
 
     const handleCopy = () => {

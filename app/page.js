@@ -8,24 +8,15 @@ import { FcGoogle } from 'react-icons/fc';
 export default function Home() {
   // Handle Google sign-in
   const signInWithGoogle = async () => {
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/api/auth/callback`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
-        },
-      });
-      
-      if (error) {
-        console.error('Google sign-in error:', error);
-        // You might want to show an error message to the user here
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`
       }
-    } catch (err) {
-      console.error('Error during sign in:', err);
+    });
+    
+    if (error) {
+      console.error('Google sign-in error:', error);
     }
   };
 
