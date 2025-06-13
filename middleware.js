@@ -1,38 +1,49 @@
 import { NextResponse } from 'next/server';
 import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
 
-export async function middleware(request) {
-  const requestHeaders = new Headers(request.headers);
-  const url = request.nextUrl;
+// List of public paths that don't require authentication
+const publicPaths = [
+  '/',
+  '/auth/callback',
+  '/api/auth/callback',
+  '/favicon.ico',
+  '/logo.png',
+  '/login.png'
+];
 
-  // Skip middleware for static files and API routes
+export async function middleware(request) {
+  const { pathname } = request.nextUrl;
+  
+  // Skip middleware for public paths
+  if (publicPaths.some(path => pathname.startsWith(path))) {
+    return NextResponse.next();
+  }
+
+  // Skip middleware for static files, API routes, and auth routes
   if (
-    url.pathname.startsWith('/_next') ||
-    url.pathname.startsWith('/static') ||
-    url.pathname.includes('.') ||
-    url.pathname.startsWith('/api')
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/static') ||
+    pathname.includes('.') ||
+    pathname.startsWith('/api/auth') ||
+    pathname.startsWith('/auth')
   ) {
     return NextResponse.next();
   }
 
   // Allow access to interview pages without authentication
-  if (url.pathname.startsWith('/interview/')) {
+  if (pathname.startsWith('/interview/')) {
     return NextResponse.next();
   }
 
   // For all other routes, check authentication
-  const response = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
-
+  const response = NextResponse.next();
   const supabase = createMiddlewareClient({ req: request, res: response });
   const { data: { session } } = await supabase.auth.getSession();
 
-  // If there's no session and user is not on the home page, redirect to home
-  if (!session && url.pathname !== '/') {
-    return NextResponse.redirect(new URL('/', request.url));
+  // If there's no session, redirect to home
+  if (!session) {
+    const url = new URL('/', request.url);
+    return NextResponse.redirect(url);
   }
 
   return response;
@@ -40,6 +51,6 @@ export async function middleware(request) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    '/((?!_next/static|_next/image).*)',
   ],
 };
