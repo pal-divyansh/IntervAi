@@ -1,14 +1,23 @@
 'use client';
 import { Button } from '@/components/ui/button';
-import { Video, Wifi, Monitor, Headphones, CheckCircle2, Clock } from 'lucide-react';
+import { Video, Wifi, Monitor, Headphones, CheckCircle2, Clock, Loader2 as Loader2Icon } from 'lucide-react';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import VantaBackground from '@/components/VantaBackground';
 import { supabase } from '../../services/supabaseClient';
-import { InterviewDataContext } from '@/app/context/InterviewDataContext';
-import { useContext } from 'react';
-import { Loader2Icon } from 'lucide-react';
+
+// Create a local context for interview data
+const InterviewDataContext = React.createContext();
+
+// Custom hook to use interview data
+const useInterviewData = () => {
+  const context = React.useContext(InterviewDataContext);
+  if (!context) {
+    throw new Error('useInterviewData must be used within an InterviewDataProvider');
+  }
+  return context;
+};
 
 
 const InterviewPage = () => {
@@ -36,22 +45,27 @@ const InterviewPage = () => {
             setLoading(false);
         }
     }
-    const { interviewData, setInterviewData } = useContext(InterviewDataContext);
     const router = useRouter();
     const [name, setName] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const [interviewData, setInterviewData] = useState(null);
 
     // Fetch interview details when component mounts
     useEffect(() => {
         const fetchInterviewDetails = async () => {
-            const details = await GetInterviewDetails();
-            if (details) {
-                setInterviewData(details);
+            try {
+                const details = await GetInterviewDetails();
+                if (details) {
+                    setInterviewData(details);
+                }
+            } catch (error) {
+                console.error('Error fetching interview details:', error);
+            } finally {
+                setIsLoading(false);
             }
-            setIsLoading(false);
         };
         fetchInterviewDetails();
-    }, []);
+    }, [interview_id]);
     
     const handleJoinInterview = async (e) => {
         e.preventDefault();
