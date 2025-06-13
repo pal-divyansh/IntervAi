@@ -1,41 +1,41 @@
 import { NextResponse } from 'next/server';
 import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
 
-const publicPaths = [
-  '/',
-  '/api/auth/callback',
-  '/interview/.*', // Match any path that starts with /interview/
-];
-
-export async function middleware(req) {
-  const res = NextResponse.next();
-  const { pathname } = req.nextUrl;
-
-  // Skip middleware for public paths
-  if (publicPaths.some(path => new RegExp(`^${path}$`).test(pathname))) {
-    return res;
-  }
+export async function middleware(request) {
+  const requestHeaders = new Headers(request.headers);
+  const url = request.nextUrl;
 
   // Skip middleware for static files and API routes
   if (
-    pathname.startsWith('/_next') || 
-    pathname.startsWith('/static') ||
-    pathname.includes('.')
+    url.pathname.startsWith('/_next') ||
+    url.pathname.startsWith('/static') ||
+    url.pathname.includes('.') ||
+    url.pathname.startsWith('/api')
   ) {
-    return res;
+    return NextResponse.next();
+  }
+
+  // Allow access to interview pages without authentication
+  if (url.pathname.startsWith('/interview/')) {
+    return NextResponse.next();
   }
 
   // For all other routes, check authentication
-  const supabase = createMiddlewareClient({ req, res });
+  const response = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
+
+  const supabase = createMiddlewareClient({ req: request, res: response });
   const { data: { session } } = await supabase.auth.getSession();
 
-  // If there's no session, redirect to home
-  if (!session) {
-    const url = new URL('/', req.url);
-    return NextResponse.redirect(url);
+  // If there's no session and user is not on the home page, redirect to home
+  if (!session && url.pathname !== '/') {
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
-  return res;
+  return response;
 }
 
 export const config = {
