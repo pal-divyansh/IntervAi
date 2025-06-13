@@ -11,9 +11,16 @@ const nextConfig = {
   experimental: {
     serverActions: true,
   },
+  // Ensure middleware runs on all routes
+  middleware: 'default',
   // For static export (if needed)
   // output: 'export',
   // distDir: 'build',
 }
 
-module.exports = nextConfig
+// Injected content via @vercel/next/plugins
+const withVercel = require('@vercel/next/plugins')({ 
+  // Vercel specific config
+});
+
+module.exports = withVercel(nextConfig);

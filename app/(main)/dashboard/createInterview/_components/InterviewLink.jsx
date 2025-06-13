@@ -11,7 +11,7 @@ function InterviewLink({ interview_id, formData }) {
     const GetInterviewLink = () => {
         // Use NEXT_PUBLIC_HOST_URL if available, otherwise fall back to current origin
         const baseUrl = process.env.NEXT_PUBLIC_HOST_URL || 
-                      (typeof window !== 'undefined' ? window.location.origin : '');
+                      (typeof window !== 'undefined' ? window.location.origin : 'https://interv-ai-dp.vercel.app');
         // Ensure we have a valid base URL
         if (!baseUrl) {
             console.error('NEXT_PUBLIC_HOST_URL is not set in environment variables');

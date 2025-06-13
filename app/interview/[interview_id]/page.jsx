@@ -1,18 +1,19 @@
 'use client';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Video, Wifi, Monitor, Headphones, CheckCircle2, Clock, Loader2 as Loader2Icon } from 'lucide-react';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext, useContext } from 'react';
 import VantaBackground from '@/components/VantaBackground';
 import { supabase } from '../../services/supabaseClient';
 
 // Create a local context for interview data
-const InterviewDataContext = React.createContext();
+const InterviewDataContext = createContext();
 
 // Custom hook to use interview data
 const useInterviewData = () => {
-  const context = React.useContext(InterviewDataContext);
+  const context = useContext(InterviewDataContext);
   if (!context) {
     throw new Error('useInterviewData must be used within an InterviewDataProvider');
   }
