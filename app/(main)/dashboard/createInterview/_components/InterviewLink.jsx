@@ -13,7 +13,8 @@ function InterviewLink({ interview_id, formData }) {
         const isProduction = process.env.NODE_ENV === 'production';
         const baseUrl = isProduction 
             ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL || process.env.VERCEL_URL || ''}`
-            : (typeof window !== 'undefined' ? window.location.origin : '');
+            : (typeof window !== 'undefined' ? window.location.origin : 'https://ai-interviewer.vercel.app');
+        // Ensure the URL has the correct path for the interview page
         return `${baseUrl}/interview/${interview_id}`;
     }
 
