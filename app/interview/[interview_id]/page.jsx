@@ -1,82 +1,67 @@
 'use client';
 import { Button } from '@/components/ui/button';
-import { Video, Wifi, Monitor, Headphones, CheckCircle2, Clock } from 'lucide-react';
-import Image from 'next/image';
+import { Video, Wifi, Monitor, Headphones, CheckCircle2, Clock, Loader2 } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
-import VantaBackground from '@/components/VantaBackground';
+import { useState, useEffect, useContext } from 'react';
 import { supabase } from '../../services/supabaseClient';
 import { InterviewDataContext } from '@/app/context/InterviewDataContext';
-import { useContext } from 'react';
-import { Loader2Icon } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
 
 const InterviewPage = () => {
-    const {interview_id} = useParams();
-    console.log(interview_id);
-    const [loading, setLoading] = useState(false);
+    const { interview_id } = useParams();
+    const [loading, setLoading] = useState(true);
     const [email, setEmail] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    
-    const GetInterviewDetails = async () => {
-        try {
-            setLoading(true);
-            const { data: Interviews, error } = await supabase
-                .from('Interviews')
-                .select('*')
-                .eq('interview_id', interview_id)
-                .single();
-
-            if (error) throw error;
-            return Interviews;
-        } catch (error) {
-            console.error('Error fetching interview details:', error);
-            return null;
-        } finally {
-            setLoading(false);
-        }
-    }
-    const { interviewData, setInterviewData } = useContext(InterviewDataContext);
-    const router = useRouter();
     const [name, setName] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [interview, setInterview] = useState(null);
+    const router = useRouter();
+    const { theme } = useTheme();
+    const { setInterviewData } = useContext(InterviewDataContext);
 
     // Fetch interview details when component mounts
     useEffect(() => {
         const fetchInterviewDetails = async () => {
-            const details = await GetInterviewDetails();
-            if (details) {
-                setInterviewData(details);
+            try {
+                setLoading(true);
+                const { data, error } = await supabase
+                    .from('Interviews')
+                    .select('*')
+                    .eq('interview_id', interview_id)
+                    .single();
+
+                if (error) throw error;
+                
+                if (data) {
+                    setInterview(data);
+                    setInterviewData(data);
+                } else {
+                    console.error('Interview not found');
+                }
+            } catch (error) {
+                console.error('Error fetching interview:', error);
+            } finally {
+                setLoading(false);
             }
-            setIsLoading(false);
         };
+        
         fetchInterviewDetails();
-    }, []);
+    }, [interview_id, setInterviewData]);
     
     const handleJoinInterview = async (e) => {
         e.preventDefault();
         
         if (!name.trim()) {
-            console.error('Please enter your name');
+            alert('Please enter your name');
             return;
         }
         
         try {
             setIsSubmitting(true);
             
-            // Get the latest interview data
-            const { data: interview, error } = await supabase
-                .from('Interviews')
-                .select('*')
-                .eq('interview_id', interview_id)
-                .single();
-
-            if (error) throw error;
-
-            // Update interview data with user's info and questions
+            // Update interview data with user's info
             const updatedData = {
                 ...interview,
-                interview_id,
                 candidateName: name.trim(),
                 candidateEmail: email.trim() || 'no-email@example.com',
                 questions: interview.questionList || []
@@ -85,24 +70,43 @@ const InterviewPage = () => {
             // Save to context
             setInterviewData(updatedData);
             
-            console.log('Starting interview with data:', {
-                interview_id,
-                candidateName: name.trim(),
-                candidateEmail: email.trim() || 'no-email@example.com',
-                questionCount: (interview.questionList || []).length
-            });
-            
             // Navigate to the interview start page
             router.push(`/interview/${interview_id}/start`);
             
         } catch (error) {
             console.error('Error starting interview:', error);
-            // Show error to user (you might want to implement a toast or alert)
-            alert('Failed to start interview. Please try again.');
+            alert('An error occurred while starting the interview. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
     };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+            </div>
+        );
+    }
+
+    if (!interview) {
+        return (
+            <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-900">
+                <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 text-center">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">Interview Not Found</h2>
+                    <p className="text-gray-600 dark:text-gray-300 mb-6">
+                        The interview link you're trying to access doesn't exist or has been deleted.
+                    </p>
+                    <Button 
+                        onClick={() => window.location.href = '/'}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                        Return Home
+                    </Button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <VantaBackground>
@@ -137,17 +141,17 @@ const InterviewPage = () => {
                                     </div>
                                     <div>
                                         <h2 className="text-xl font-semibold text-white">
-                                            {isLoading ? 'Loading...' : (interviewData?.job_title || 'Interview')}
+                                            {interview.job_title || 'Interview'}
                                         </h2>
                                         <p className="text-white/60 text-sm">
-                                            {isLoading ? 'Loading details...' : 'Technical Interview'}
+                                            Technical Interview
                                         </p>
                                     </div>
                                 </div>
                                 <div className="space-y-2 text-white">
                                     <p className="flex items-center gap-2">
                                         <Clock className="h-4 w-4 text-blue-400" />
-                                        <span>Duration: {isLoading ? 'Loading...' : (interviewData?.duration || 'N/A')}</span>
+                                        <span>Duration: {interview.duration || 'N/A'}</span>
                                     </p>
                                     <p className="flex items-center gap-2">
                                         <CheckCircle2 className="h-4 w-4 text-green-400" />

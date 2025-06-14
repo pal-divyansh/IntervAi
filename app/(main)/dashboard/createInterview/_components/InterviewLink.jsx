@@ -9,17 +9,18 @@ function InterviewLink({ interview_id, formData }) {
     const [copied, setCopied] = useState(false);
 
     const GetInterviewLink = () => {
-        // Get base URL from environment or current origin
-        let baseUrl = process.env.NEXT_PUBLIC_HOST_URL || 
-                     (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+        // Always use the production URL from environment variables
+        const productionUrl = 'https://interv-ai-dp.vercel.app';
+        const baseUrl = process.env.NODE_ENV === 'production' 
+            ? productionUrl 
+            : productionUrl; // Always use production URL even in development
         
-        // Ensure baseUrl doesn't end with a slash
-        baseUrl = baseUrl.replace(/\/+$/, '');
-        
-        // Ensure the interview_id doesn't start with 'interview/'
-        const cleanInterviewId = interview_id.startsWith('interview/') 
-            ? interview_id.replace(/^interview\//, '') 
-            : interview_id;
+        // Clean up the interview ID - remove any path segments and keep only the ID
+        let cleanInterviewId = interview_id;
+        // Remove any path segments and query parameters
+        cleanInterviewId = cleanInterviewId
+            .split('/').pop()  // Get last segment
+            .split('?')[0];    // Remove query parameters
             
         return `${baseUrl}/interview/${cleanInterviewId}`;
     }
