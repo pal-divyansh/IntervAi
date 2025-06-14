@@ -9,10 +9,19 @@ function InterviewLink({ interview_id, formData }) {
     const [copied, setCopied] = useState(false);
 
     const GetInterviewLink = () => {
-        // Use NEXT_PUBLIC_HOST_URL from environment variables if available
-        const baseUrl = process.env.NEXT_PUBLIC_HOST_URL || 
-                      (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
-        return `${baseUrl}/interview/${interview_id}`;
+        // Get base URL from environment or current origin
+        let baseUrl = process.env.NEXT_PUBLIC_HOST_URL || 
+                     (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+        
+        // Ensure baseUrl doesn't end with a slash
+        baseUrl = baseUrl.replace(/\/+$/, '');
+        
+        // Ensure the interview_id doesn't start with 'interview/'
+        const cleanInterviewId = interview_id.startsWith('interview/') 
+            ? interview_id.replace(/^interview\//, '') 
+            : interview_id;
+            
+        return `${baseUrl}/interview/${cleanInterviewId}`;
     }
 
     const handleCopy = () => {
