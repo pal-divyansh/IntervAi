@@ -9,11 +9,9 @@ function InterviewLink({ interview_id, formData }) {
     const [copied, setCopied] = useState(false);
 
     const GetInterviewLink = () => {
-        // In production, use Vercel URL, otherwise use the current origin
-        const isProduction = process.env.NODE_ENV === 'production';
-        const baseUrl = isProduction 
-            ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL || process.env.VERCEL_URL || ''}`
-            : (typeof window !== 'undefined' ? window.location.origin : '');
+        // Use NEXT_PUBLIC_HOST_URL from environment variables if available
+        const baseUrl = process.env.NEXT_PUBLIC_HOST_URL || 
+                      (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
         return `${baseUrl}/interview/${interview_id}`;
     }
 
