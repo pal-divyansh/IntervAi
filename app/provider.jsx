@@ -1,14 +1,27 @@
 "use client"
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from './services/supabaseClient';
+import { useRouter } from 'next/navigation';
 
 export const UserDetailContext = createContext();
 
 function Provider({ children }) {
     const [user, setUser] = useState();
+    const router = useRouter();
     useEffect(() => {
         CreateNewUser()
     }, [])
+
+    // ADDED: After login, redirect to intended path if present
+    useEffect(() => {
+        if (user && typeof window !== 'undefined') {
+            const intended = window.sessionStorage.getItem('intendedPath');
+            if (intended && window.location.pathname !== intended) {
+                window.sessionStorage.removeItem('intendedPath');
+                router.replace(intended);
+            }
+        }
+    }, [user, router]);
 
     const CreateNewUser = () => {
         // if user already exist

@@ -6,12 +6,32 @@ import { supabase } from './services/supabaseClient';
 import { FcGoogle } from 'react-icons/fc';
 
 export default function Home() {
+  // Store intended path before login
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // If coming from a protected route, store it
+      const params = new URLSearchParams(window.location.search);
+      const intended = params.get('redirect') || window.sessionStorage.getItem('intendedPath');
+      if (!intended && window.location.pathname !== '/') {
+        window.sessionStorage.setItem('intendedPath', window.location.pathname + window.location.search);
+      }
+    }
+  }, []);
+
   // Handle Google sign-in
   const signInWithGoogle = async () => {
+    let redirectTo = `${window.location.origin}/dashboard`;
+    // Use intended path if available
+    if (typeof window !== 'undefined') {
+      const intended = window.sessionStorage.getItem('intendedPath');
+      if (intended) {
+        redirectTo = `${window.location.origin}${intended}`;
+      }
+    }
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/dashboard`
+        redirectTo
       }
     });
     
