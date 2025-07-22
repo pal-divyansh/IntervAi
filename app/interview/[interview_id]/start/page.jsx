@@ -11,7 +11,7 @@ import Vapi from '@vapi-ai/web';
 import axios from 'axios';
 
 export default function StartPage() {
-    const { interviewData } = useContext(InterviewDataContext);
+    const { interviewData, setInterviewData } = useContext(InterviewDataContext);
     const { interview_id } = useParams();
     const supabase = createClientComponentClient();
     const [vapi, setVapi] = useState(null);
@@ -24,6 +24,53 @@ export default function StartPage() {
     const userSpeechRecognition = useRef(null);
     const [conversation, setConversation] = useState([]);
     const router = useRouter();
+    // ADDED: loading state for fetching interview data
+    const [loadingInterview, setLoadingInterview] = useState(false);
+
+    // ADDED: Fetch interview data if not present in context
+    useEffect(() => {
+        async function fetchAndSetInterviewData() {
+            if (!interviewData && interview_id) {
+                setLoadingInterview(true);
+                const { data, error } = await supabase
+                    .from('Interviews')
+                    .select('*')
+                    .eq('interview_id', interview_id)
+                    .single();
+                setLoadingInterview(false);
+                if (error || !data) {
+                    // Interview not found, redirect to dashboard or show error
+                    router.push('/dashboard');
+                    return;
+                }
+                setInterviewData(data);
+            }
+        }
+        fetchAndSetInterviewData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [interviewData, interview_id, setInterviewData]);
+
+    // ADDED: If interviewData is present but missing candidateName/email, redirect to join page
+    useEffect(() => {
+        if (
+            interviewData && 
+            (!interviewData.candidateName || !interviewData.candidateEmail)
+        ) {
+            router.replace(`/interview/${interview_id}`);
+        }
+    }, [interviewData, interview_id, router]);
+
+    // ADDED: Show loading state if fetching interview data
+    if (loadingInterview || !interviewData) {
+        return (
+            <VantaBackground>
+                <div className="min-h-screen flex items-center justify-center">
+                    <div className="text-white text-lg">Loading interview data...</div>
+                </div>
+            </VantaBackground>
+        );
+    }
+
     const GenerateFeedback = async () => {
         try {
             // Get user info from interviewData or use defaults
