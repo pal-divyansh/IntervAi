@@ -1,11 +1,29 @@
 "use client";
-import React from 'react';
+import React, { useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { supabase } from './services/supabaseClient';
 import { FcGoogle } from 'react-icons/fc';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
+  const router = useRouter();
+
+  // Redirect authenticated users away from login page
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        const intended = window.sessionStorage.getItem('intendedPath');
+        if (intended && window.location.pathname !== intended) {
+          window.sessionStorage.removeItem('intendedPath');
+          router.replace(intended);
+        } else {
+          router.replace('/dashboard');
+        }
+      }
+    });
+  }, [router]);
+
   // Store intended path before login
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
